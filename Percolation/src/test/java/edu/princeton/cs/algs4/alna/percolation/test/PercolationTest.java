@@ -1,12 +1,10 @@
 package edu.princeton.cs.algs4.alna.percolation.test;
 
+import edu.princeton.cs.algs4.alna.percolation.Percolation;
 import org.junit.Test;
 
-/**
- * User: ALNA0709
- * Date: 27.09.2015
- * Time: 23:02
- */
+import static org.junit.Assert.*;
+
 public class PercolationTest {
 
     private int N;
@@ -15,7 +13,15 @@ public class PercolationTest {
     }
 
     @Test
-    public void testIsEdge() {
-        System.out.println("HEELLOOOO!!!!!!!");
+    public void testIsOpen() {
+        System.out.println("Start test: "
+                + Thread.currentThread().getStackTrace()[1].getMethodName());
+        Percolation p = new Percolation(3);
+
+        p.open(1, 1);
+        assertTrue(p.isOpen(1, 1));
+
+        p.open(1, 3);
+        assertTrue(p.isOpen(1, 3));
     }
 }

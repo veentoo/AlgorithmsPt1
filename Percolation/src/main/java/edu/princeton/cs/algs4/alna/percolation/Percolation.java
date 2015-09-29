@@ -36,12 +36,22 @@ public class Percolation {
         validate(i, j);
         int pos = get1DPosition(i, j);
         int upperPos = getNeighbourPosition(i, j, -1, 0);
+        if (upperPos > -1) {
+            uf.union(pos, upperPos);
+        }
         int rightPos = getNeighbourPosition(i, j, 0, 1);
+        if (rightPos > -1) {
+            uf.union(pos, rightPos);
+        }
         int bottomPos = getNeighbourPosition(i, j, 1, 0);
+        if (bottomPos > -1) {
+            uf.union(pos, bottomPos);
+        }
         int leftPos = getNeighbourPosition(i, j, 0, -1);
-
-        uf.union(pos, upperPos);
-
+        if (leftPos > -1) {
+            uf.union(pos, leftPos);
+        }
+        status[pos] = 0x01;
     }
 
     /**
@@ -99,15 +109,18 @@ public class Percolation {
     }
 
     private int toInnerIdx(int k) {
-        return k -1;
+        return k - 1;
     }
 
     private int getNeighbourPosition(int i, int j, int di, int dj) {
         if ((toInnerIdx(i)+di < 0) || (toInnerIdx(j)+dj < 0)) {
-            System.out.println("getNeighbourPosition returns -1 for " + intArrayToString(i, j, di, dj));
+            System.out.println("no neighbour ("+di+","+dj+") for " + intArrayToString(i, j));
             return -1;
         }
-        return get1DPosition(toInnerIdx(i)+di, toInnerIdx(j)+dj);
+        int dPosition = get1DPosition(i + di, j + dj);
+        System.out.println("neighbour (" + di + "," + dj + ") for "
+                + intArrayToString(i, j) + " is " + dPosition);
+        return dPosition;
     }
 
     private int get1DPosition(int i, int j) {
