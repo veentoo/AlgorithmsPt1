@@ -6,8 +6,14 @@ public class Percolation {
 
     private int N;
     private int NN;
+    private boolean isOpen, isTop, isBottom;
+
+    /**
+     * 0x00000000 - open
+     * 0x00000001 - connected to top<br>
+     * 0x00000010 - connected to bottom
+     */
     private byte[] status;
-    private boolean isOpen, isEdge, isFilled;
 
     private WeightedQuickUnionUF uf;
 
@@ -37,21 +43,20 @@ public class Percolation {
         int pos = get1DPosition(i, j);
         int upperPos = getNeighbourPosition(i, j, -1, 0);
         if (upperPos > -1) {
-            uf.union(pos, upperPos);
+            makeUnion(pos, upperPos);
         }
         int rightPos = getNeighbourPosition(i, j, 0, 1);
         if (rightPos > -1) {
-            uf.union(pos, rightPos);
+            makeUnion(pos, rightPos);
         }
         int bottomPos = getNeighbourPosition(i, j, 1, 0);
         if (bottomPos > -1) {
-            uf.union(pos, bottomPos);
+            makeUnion(pos, bottomPos);
         }
         int leftPos = getNeighbourPosition(i, j, 0, -1);
         if (leftPos > -1) {
-            uf.union(pos, leftPos);
+            makeUnion(pos, leftPos);
         }
-        status[pos] = 0x01;
     }
 
     /**
@@ -123,8 +128,41 @@ public class Percolation {
         return dPosition;
     }
 
+    /**
+     * 0..N-1
+     * @param i
+     * @param j
+     * @return
+     */
     private int get1DPosition(int i, int j) {
         return toInnerIdx(i)* N + toInnerIdx(j);
+    }
+
+    private void makeUnion(int pos, int destPos) {
+        int root = uf.find(destPos);
+        byte rootStatus = status[root];
+        byte posStatus = getStatus(pos);
+        status[root] = (byte)(rootStatus | posStatus);  // update root with pos status
+        status[pos] = posStatus;
+        uf.union(pos, destPos);
+    }
+
+    private byte getStatus(int pos) {
+        return  (byte)(0x00 | isOnTop(pos) | isOnBottom(pos));
+    }
+
+    private byte isOnTop(int pos) {
+        if (pos < N)
+            return 0x00000001;
+        else
+            return 0x00;
+    }
+
+    private byte isOnBottom(int pos) {
+        if (pos > NN - N)
+            return 0x00000010;
+        else
+            return 0x00;
     }
 
     private String intArrayToString(int ... args) {
