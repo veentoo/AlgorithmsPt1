@@ -9,9 +9,9 @@ public class Percolation {
     private boolean isOpen, isTop, isBottom;
 
     /**
-     * 0x00000000 - open
-     * 0x00000001 - connected to top<br>
-     * 0x00000010 - connected to bottom
+     * 0b100 - open
+     * 0b001 - connected to top<br>
+     * 0b010 - connected to bottom
      */
     private byte[] status;
 
@@ -41,20 +41,23 @@ public class Percolation {
     public void open(int i, int j) {
         validate(i, j);
         int pos = get1DPosition(i, j);
+        System.out.println("pos is " + pos);
+        byte posStatus = getStatus(pos);
+        status[pos] = posStatus;
         int upperPos = getNeighbourPosition(i, j, -1, 0);
-        if (upperPos > -1) {
+        if (upperPos > -1 && status[upperPos] != 0b000) {
             makeUnion(pos, upperPos);
         }
         int rightPos = getNeighbourPosition(i, j, 0, 1);
-        if (rightPos > -1) {
+        if (rightPos > -1 && status[rightPos] != 0b000) {
             makeUnion(pos, rightPos);
         }
         int bottomPos = getNeighbourPosition(i, j, 1, 0);
-        if (bottomPos > -1) {
+        if (bottomPos > -1 && status[bottomPos] != 0b000) {
             makeUnion(pos, bottomPos);
         }
         int leftPos = getNeighbourPosition(i, j, 0, -1);
-        if (leftPos > -1) {
+        if (leftPos > -1 && status[leftPos] != 0b000) {
             makeUnion(pos, leftPos);
         }
     }
@@ -69,7 +72,7 @@ public class Percolation {
     public boolean isOpen(int i, int j) {
         validate(i, j);
         int pos = get1DPosition(i, j);
-        if ((status[pos] & 0x01) == 1)
+        if (status[pos] > 0b000)
             return true;
         else
             return false;
@@ -118,7 +121,7 @@ public class Percolation {
     }
 
     private int getNeighbourPosition(int i, int j, int di, int dj) {
-        if ((toInnerIdx(i)+di < 0) || (toInnerIdx(j)+dj < 0)) {
+        if ((toInnerIdx(i)+di < 0) || (toInnerIdx(j)+dj < 0) || i + di > N || j + dj > N) {
             System.out.println("no neighbour ("+di+","+dj+") for " + intArrayToString(i, j));
             return -1;
         }
@@ -141,28 +144,30 @@ public class Percolation {
     private void makeUnion(int pos, int destPos) {
         int root = uf.find(destPos);
         byte rootStatus = status[root];
-        byte posStatus = getStatus(pos);
+        byte posStatus = status[pos];
+        System.out.println("Statuses: " + posStatus + " " + rootStatus);
         status[root] = (byte)(rootStatus | posStatus);  // update root with pos status
-        status[pos] = posStatus;
+
+        System.out.println("Attach " + pos + " to " + destPos);
         uf.union(pos, destPos);
     }
 
     private byte getStatus(int pos) {
-        return  (byte)(0x00 | isOnTop(pos) | isOnBottom(pos));
+        return  (byte)(0b000 | isOnTop(pos) | isOnBottom(pos));
     }
 
     private byte isOnTop(int pos) {
         if (pos < N)
-            return 0x00000001;
+            return 0b001;
         else
-            return 0x00;
+            return 0b100;
     }
 
     private byte isOnBottom(int pos) {
         if (pos > NN - N)
-            return 0x00000010;
+            return 0b010;
         else
-            return 0x00;
+            return 0b100;
     }
 
     private String intArrayToString(int ... args) {

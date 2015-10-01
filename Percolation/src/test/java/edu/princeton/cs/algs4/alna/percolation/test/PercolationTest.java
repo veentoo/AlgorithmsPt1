@@ -23,5 +23,8 @@ public class PercolationTest {
 
         p.open(1, 3);
         assertTrue(p.isOpen(1, 3));
+
+        p.open(1, 2);
+        assertTrue(p.isOpen(1, 3));
     }
 }
